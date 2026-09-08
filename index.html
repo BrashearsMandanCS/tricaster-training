@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TriCaster Mini Boot Camp Quiz Lab</title>
+<style>
+:root{
+  --bg:#0b0f14; --panel:#131a22; --panel2:#18222d; --text:#f7fafc; --muted:#aab7c4;
+  --accent:#3dd6ff; --accent2:#7c5cff; --good:#35d07f; --bad:#ff6262; --warn:#ffc857;
+  --line:#2a3948;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:
+radial-gradient(circle at top right,#142b3a 0,#0b0f14 38%),var(--bg);color:var(--text)}
+header{padding:30px 20px;border-bottom:1px solid var(--line);background:rgba(8,12,17,.92);position:sticky;top:0;z-index:9;backdrop-filter:blur(8px)}
+.wrap{max-width:1050px;margin:auto}
+h1{margin:0;font-size:clamp(1.7rem,4vw,3rem);letter-spacing:-.03em}
+.subtitle{margin:.5rem 0 0;color:var(--muted);line-height:1.5}
+.toprow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+input[type=text]{background:#0e141b;border:1px solid var(--line);color:white;padding:11px 13px;border-radius:10px;min-width:260px}
+button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--accent),#77f0ff);color:#071017}
+.secondary{background:#253342;color:white}
+.danger{background:#3a2024;color:#ffd9dc;border:1px solid #68343a}
+main{padding:24px 20px 70px}
+.progress-shell{background:#101820;border:1px solid var(--line);height:16px;border-radius:999px;overflow:hidden;margin:16px 0 8px}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:.35s}
+.progress-label{color:var(--muted);font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0}
+.card{background:linear-gradient(180deg,var(--panel),#10161d);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.card h3{margin:0 0 8px}
+.card p{color:var(--muted);margin:0 0 14px;line-height:1.45}
+.badge{display:inline-block;font-size:.75rem;font-weight:800;padding:5px 9px;border-radius:999px;background:#202b39;color:#cfeeff;margin-bottom:10px}
+.complete{border-color:#2e8f62;box-shadow:0 0 0 1px rgba(53,208,127,.15)}
+.scorepill{font-weight:800;color:var(--good)}
+.section{display:none}
+.section.active{display:block}
+.back{margin-bottom:14px}
+.lessonbox{background:#0f1720;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lessonbox h2{margin-top:0}
+.diagram{background:#091017;border:1px solid #294257;border-radius:14px;padding:18px;margin:14px 0;overflow:auto}
+.stack{max-width:520px;margin:auto;display:flex;flex-direction:column;gap:8px}
+.layer{padding:13px;border-radius:10px;text-align:center;font-weight:800;border:1px solid #3c4c5d}
+.layer.dsk{background:#252042}.layer.key{background:#173249}.layer.bg{background:#193427}
+.switcher{display:grid;grid-template-columns:110px repeat(3,minmax(90px,1fr));gap:8px;min-width:430px}
+.cell{padding:12px;border-radius:8px;background:#18222d;border:1px solid #344454;text-align:center}
+.label{background:#0e141b;font-weight:800}.program{background:#512128;border-color:#c95763}.preview{background:#183b2a;border-color:#42a86f}
+.route{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-weight:800}
+.route span{padding:13px 16px;border:1px solid #365064;background:#142331;border-radius:12px}
+.arrow{color:var(--accent);font-size:1.5rem}
+.question{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.question h4{margin:0 0 12px;font-size:1.05rem;line-height:1.45}
+.choice{display:block;background:#0f1720;border:1px solid #2c3c4c;padding:10px 12px;border-radius:10px;margin:8px 0;cursor:pointer}
+.choice:hover{border-color:#4d6a84}
+.choice input{margin-right:9px}
+.explanation{display:none;margin-top:10px;padding:11px;border-radius:9px;line-height:1.45}
+.explanation.show{display:block}
+.explanation.good{background:rgba(53,208,127,.10);border:1px solid rgba(53,208,127,.45);color:#caffdf}
+.explanation.bad{background:rgba(255,98,98,.10);border:1px solid rgba(255,98,98,.45);color:#ffd3d3}
+.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.result{display:none;border-radius:14px;padding:18px;margin-top:16px;background:#101a22;border:1px solid var(--line)}
+.result.show{display:block}
+.result strong{font-size:1.4rem}
+.final{background:linear-gradient(135deg,#17233a,#101820);border:1px solid #394b68}
+.small{font-size:.9rem;color:var(--muted)}
+footer{text-align:center;color:#7f8c99;padding:25px}
+@media print{
+ header,.no-print,.quiz-actions,.back{display:none!important}
+ body{background:white;color:black}
+ .card,.question,.lessonbox,.diagram,.result{box-shadow:none;background:white;color:black;border-color:#aaa}
+ .small,.subtitle,.card p{color:#444}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🎥 TriCaster Mini Boot Camp Quiz Lab</h1>
+    <p class="subtitle">Self-graded practice for switching, audio, graphics, LiveMatte, M/Es, PTZ cameras, COMPs, and macros.</p>
+    <div class="toprow no-print">
+      <input id="studentName" type="text" placeholder="Student first & last name">
+      <button class="primary" onclick="saveName()">Save Name</button>
+      <button class="secondary" onclick="showHome()">Quiz Home</button>
+      <button class="danger" onclick="resetAll()">Reset Progress</button>
+    </div>
+    <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
+    <div id="progressLabel" class="progress-label">0 of 8 sections completed</div>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="home" class="section active">
+  <div class="card final">
+    <span class="badge">HOW TO USE THIS</span>
+    <h2>Complete the quizzes in any order.</h2>
+    <p>Each section has a short visual refresher followed by five questions. Select your answers and click <b>Grade This Section</b>. Correct answers and explanations appear immediately. A score of <b>80% or higher</b> marks the section complete.</p>
+  </div>
+  <div id="cards" class="grid"></div>
+  <div class="card final">
+    <h2>🏁 Final Progress</h2>
+    <p id="finalMessage">Complete all eight sections to finish TriCaster Boot Camp.</p>
+    <button class="secondary no-print" onclick="window.print()">Print / Save Results</button>
+  </div>
+</section>
+<div id="quizContainer"></div>
+</main>
+<footer>TriCaster Mini Boot Camp • Classroom self-check quiz</footer>
+
+<script>
+const sections = [
+{
+id:"switching", title:"1. Switching Fundamentals", icon:"🎛️",
+desc:"Program, Preview, TAKE, AUTO, and the director's basic workflow.",
+visual:`<div class="switcher">
+<div class="cell label">ROW</div><div class="cell">CAM 1</div><div class="cell">CAM 2</div><div class="cell">CAM 3</div>
+<div class="cell label">PROGRAM</div><div class="cell program">ON AIR</div><div class="cell"></div><div class="cell"></div>
+<div class="cell label">PREVIEW</div><div class="cell"></div><div class="cell preview">NEXT</div><div class="cell"></div>
+</div>`,
+questions:[
+["Which row represents what viewers are seeing right now?",["Preview","Program","DDR","Buffer"],1,"Program is the live/on-air output."],
+["CAM 1 is on Program and CAM 2 is on Preview. What will TAKE normally do?",["Put CAM 2 on air immediately","Record CAM 2","Mute CAM 1","Open an M/E"],0,"TAKE performs an immediate switch from the current Program source to the Preview source."],
+["What is the best beginner mental shortcut?",["Program = later; Preview = now","Program = now; Preview = next","Program = audio; Preview = video","Program = graphics; Preview = cameras"],1,"Remember: Program is NOW. Preview is NEXT."],
+["How does AUTO differ from TAKE?",["AUTO uses the selected transition; TAKE is immediate","AUTO records; TAKE streams","AUTO only works on PTZ cameras","There is no difference"],0,"AUTO performs the selected transition; TAKE switches directly."],
+["A director wants CAM 3 next but does not want viewers to see it yet. Where should CAM 3 go?",["Program","Preview","DSK","Master audio"],1,"Preview is where you prepare the next source without putting it on air."]
+]},
+{
+id:"audio", title:"2. Audio Routing", icon:"🎚️",
+desc:"External mixer, camera audio, meters, clipping, and follow-video audio.",
+visual:`<div class="route"><span>MIC 1</span><span>MIC 2</span><span>MIC 3</span><b class="arrow">→</b><span>External Mixer</span><b class="arrow">→</b><span>TriCaster</span></div>`,
+questions:[
+["In your studio setup, what is the simplest main audio path?",["PTZ camera → mixer → microphone","Microphones → external mixer → TriCaster","TriCaster → cameras → microphones","Graphics → mixer → TriCaster"],1,"Your external mixer combines microphone audio before sending it into TriCaster."],
+["Why might camera audio be muted when you already use a dedicated mixer?",["To make the picture brighter","To avoid echo, delay, room noise, or phasing","Because NDI cannot carry audio","To improve PTZ speed"],1,"Mixing camera microphones with the main mixer feed can create undesirable doubled or delayed sound."],
+["What does clipping usually mean?",["The level is too low","The level is too high and distorting","The camera is out of focus","The graphic is cropped"],1,"Digital clipping occurs when audio exceeds the available level range."],
+["For a studio show where all microphones feed one external mixer, should that mixer input normally stay active when cameras change?",["Yes","No, it should switch off with each camera","Only during green screen","Only when DDR plays"],0,"A central studio mix generally remains active regardless of which camera is on Program."],
+["What is the most useful thing to watch while setting incoming audio?",["The PTZ preset list","The audio meter","The M/E tab color","The mouse pointer"],1,"Meters let you see whether audio is healthy, too quiet, or clipping."]
+]},
+{
+id:"graphics", title:"3. Graphics & DSKs", icon:"📰",
+desc:"Lower thirds, logos, buffers, GFX sources, and downstream keys.",
+visual:`<div class="stack"><div class="layer dsk">DSK 2 — School Logo Bug</div><div class="layer dsk">DSK 1 — Lower Third</div><div class="layer bg">PROGRAM — Camera or M/E</div></div>`,
+questions:[
+["Where should a lower third that must remain visible while switching cameras usually be placed?",["M/E background","DSK","PTZ preset","Master audio"],1,"A DSK is downstream of the main switch and can stay over different Program sources."],
+["Which is a good use for a Buffer?",["A frequently reused school logo","A microphone gain setting","A PTZ pan command","A live camera tally"],0,"Buffers are useful for reusable still/graphic assets."],
+["What is a DSK best thought of as?",["A layer over the finished Program composition","A camera focus control","A green-screen picker","An audio compressor"],0,"Downstream keys sit over the main Program composition."],
+["If a school logo should stay on screen during CAM 1, CAM 2, and an M/E, where is the better place for it?",["Inside only M/E 1","DSK","Preview row","Camera Image tab"],1,"A DSK is appropriate for whole-show overlays."],
+["Which pairing makes the most sense?",["DDR = video package; GFX = titles/graphics","DDR = microphone; GFX = PTZ camera","DDR = chroma key; GFX = audio","DDR = Preview; GFX = Program"],0,"DDRs are media players for clips, while GFX is intended for graphics."]
+]},
+{
+id:"green", title:"4. Green Screen & LiveMatte", icon:"🟩",
+desc:"Chroma keying, lighting, spill, cropping, and background replacement.",
+visual:`<div class="route"><span>Person + GREEN</span><b class="arrow">→</b><span>LiveMatte removes green</span><b class="arrow">→</b><span>Person + Background</span></div>`,
+questions:[
+["What does LiveMatte primarily do?",["Adds a newsroom automatically","Makes a selected color transparent","Records the camera","Controls PTZ movement"],1,"LiveMatte performs chroma/luma keying, commonly removing green from a green-screen source."],
+["After removing green, why might you still see nothing interesting behind the person?",["LiveMatte only creates transparency; you still need a background","The microphone is muted","Preview is always black","PTZ presets erase backgrounds"],0,"Keying removes the green but does not choose your replacement background."],
+["Which setup helps create a cleaner key?",["Uneven green lighting and subject touching the screen","Even green lighting with the subject separated from the screen","Green clothing","Heavy shadows on the screen"],1,"Even lighting and physical separation reduce shadows and spill."],
+["What TriCaster control can sometimes act as a basic garbage matte?",["Crop","Master volume","TAKE","PTZ speed"],0,"Cropping can remove unwanted edges, stands, or off-screen areas from the keyed source."],
+["If hair and clothing begin disappearing, what is a likely problem?",["The key settings are too aggressive","The PTZ preset is too slow","The DDR is paused","The DSK is downstream"],0,"Over-aggressive tolerance/smoothing can remove parts of the subject along with the background."]
+]},
+{
+id:"me", title:"5. M/E Fundamentals", icon:"🧩",
+desc:"The big one: building scenes from backgrounds and key layers.",
+visual:`<div class="stack"><div class="layer key">KEY 2 — Screen / Extra Graphic</div><div class="layer key">KEY 1 — Keyed Anchor</div><div class="layer bg">BKGD — Newsroom</div></div>`,
+questions:[
+["What is the easiest way to think about an M/E?",["A mini scene/compositor inside TriCaster","A microphone channel","A recording drive","A camera battery"],0,"An M/E lets you build a multi-layer composition that can then be treated like a source."],
+["You build M/E 1 with a newsroom background and a keyed anchor. How do you normally put that finished scene on air?",["Select M/E 1 on the main switcher","Restart TriCaster","Move it into the audio mixer","Assign it to a PTZ preset"],0,"The completed M/E appears as a selectable source on the main switcher."],
+["What is at the bottom of a typical M/E layer stack?",["Background","DSK 2","Master audio","PTZ preset"],0,"The background is the base layer; key layers sit above it."],
+["A graphic should appear only when M/E 1 is being used. Where is a logical place for it?",["An M/E key layer","A whole-show DSK","Master audio","Camera tally"],0,"Scene-specific overlays belong naturally inside the M/E."],
+["Which statement is most accurate?",["M/E 1 can combine multiple elements into one finished scene","M/E 1 can only hold audio","M/E 1 is another name for Preview","M/E 1 disables LiveMatte"],0,"M/Es are designed to build layered compositions."]
+]},
+{
+id:"keys", title:"6. M/E Keys vs. DSKs", icon:"🧱",
+desc:"Know which graphics belong to one scene and which belong to the whole show.",
+visual:`<div class="stack"><div class="layer dsk">DSK — stays over different Program sources</div><div class="layer key">M/E KEY — belongs to one M/E scene</div><div class="layer bg">BKGD / CAMERA / M/E</div></div>`,
+questions:[
+["A graphic disappears when you leave M/E 1. What is the most likely reason?",["It is an M/E key tied to that scene","The audio clipped","The PTZ camera lost power","Program became Preview"],0,"M/E keys live inside their M/E composition."],
+["A lower third needs to remain visible as the director switches from CAM 1 to CAM 2. Best choice?",["DSK","M/E background only","PTZ preset","DDR audio"],0,"Whole-show overlays are a classic DSK use."],
+["Which rule is easiest to remember?",["One scene = M/E key; whole show = DSK","One scene = DSK; whole show = Preview","Graphics always go in Program","All keys are audio"],0,"This shortcut solves many beginner layer problems."],
+["If you accidentally use a DSK for a graphic that should belong only to a virtual set, what may happen?",["It may remain visible after you switch away from the virtual set","It will automatically mute","It becomes a PTZ preset","The green screen turns blue"],0,"A DSK is downstream and can stay on top of other Program sources."],
+["What sits farther downstream in the final composition?",["DSK","M/E background","Camera sensor","PTZ motor"],0,"DSKs are applied after the main background/M/E composition."]
+]},
+{
+id:"ptz", title:"7. PTZ Camera Workflow", icon:"📹",
+desc:"Presets, shot planning, and using three network cameras efficiently.",
+visual:`<div class="route"><span>CAM 1: Wide</span><span>CAM 1: Anchor A</span><span>CAM 1: Anchor B</span><span>CAM 1: Two-shot</span></div>`,
+questions:[
+["Why are PTZ presets so valuable during a student broadcast?",["They recall planned shots quickly and consistently","They improve microphone tone","They create chroma keys","They replace DSKs"],0,"Presets reduce manual camera steering during a live show."],
+["What is a smart setup for Camera 1 at an anchor desk?",["Wide, Anchor A, Anchor B, and two-shot presets","One random preset only","Audio presets only","No presets so operators always pan live"],0,"Preplanned common framing makes live directing easier."],
+["When should students ideally build PTZ presets?",["Before the broadcast","Only after the show ends","Only while a speaker is live","Never"],0,"Preset planning belongs in setup/rehearsal."],
+["What is one advantage of using three PTZ cameras?",["One operator can rapidly recall multiple planned angles","Each camera becomes an audio mixer","They remove the need for Program","They automatically create lower thirds"],0,"PTZ control makes multiple camera positions manageable with a small crew."],
+["Which action is riskier during a live interview?",["Slowly hunting for framing manually on an on-air PTZ camera","Recalling a rehearsed preset on an off-air camera","Previewing the next shot","Using a saved two-shot"],0,"Visible hunting/panning can look unpolished unless the movement is intentional."]
+]},
+{
+id:"advanced", title:"8. COMPs & Macros", icon:"⚡",
+desc:"Stored layouts, motion between compositions, and automation.",
+visual:`<div class="route"><span>COMP 1: Side-by-side</span><b class="arrow">→</b><span>COMP 2: Host large</span><b class="arrow">→</b><span>Macro: recall + transition</span></div>`,
+questions:[
+["What does a COMP mainly help you remember?",["Layer positions/configurations inside a composition","Microphone passwords","Camera serial numbers","Ethernet cable colors"],0,"COMPs store composition/layer configurations and can support DVE-style motion between layouts."],
+["What is a Macro?",["A recorded or programmed sequence of actions that can be triggered together","A green-screen color","A PTZ lens","A type of microphone"],0,"Macros automate repeated sequences and reduce operator workload."],
+["Why should students learn the manual workflow before relying heavily on macros?",["So they understand and can troubleshoot what the macro is doing","Because macros cannot switch video","Because macros only work without cameras","Because COMPs delete macros"],0,"Automation is much easier to debug when the underlying manual steps are understood."],
+["Which is a good macro candidate?",["Recall a weather camera preset, select the weather M/E, and transition to it","Change the physical color of the green screen","Repair a broken Ethernet cable","Focus a camera with no PTZ control"],0,"Repeated multi-step show actions are excellent macro candidates."],
+["Which order is a strong learning progression?",["Switching → graphics/keying → M/Es → COMPs → macros","Macros → cameras → electricity → Program","Audio → macros only","PTZ → ignore Program/Preview"],0,"Build fundamentals first, then layered scenes, stored layouts, and finally automation."]
+]}
+];
+
+let state = JSON.parse(localStorage.getItem("tricasterQuizState")||"{}");
+let student = localStorage.getItem("tricasterStudent")||"";
+document.getElementById("studentName").value=student;
+
+function saveName(){
+  const v=document.getElementById("studentName").value.trim();
+  if(!v){alert("Please enter your first and last name.");return;}
+  student=v; localStorage.setItem("tricasterStudent",v); updateHome();
+}
+function resetAll(){
+  if(confirm("Reset all quiz scores and student name on this device?")){
+    localStorage.removeItem("tricasterQuizState"); localStorage.removeItem("tricasterStudent");
+    state={}; student=""; document.getElementById("studentName").value=""; showHome();
+  }
+}
+function showHome(){
+  document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+  document.getElementById("home").classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"}); updateHome();
+}
+function openSection(id){
+  document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+  document.getElementById("sec-"+id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function updateHome(){
+  const cards=document.getElementById("cards"); cards.innerHTML="";
+  let completed=0,totalPct=0,graded=0;
+  sections.forEach(s=>{
+    const r=state[s.id];
+    if(r){graded++;totalPct+=r.score}
+    if(r && r.score>=80) completed++;
+    const div=document.createElement("div");
+    div.className="card "+(r&&r.score>=80?"complete":"");
+    div.innerHTML=`<span class="badge">${s.icon} SECTION ${sections.indexOf(s)+1}</span>
+    <h3>${s.title}</h3><p>${s.desc}</p>
+    ${r?`<div class="scorepill">Best Score: ${r.score}% ${r.score>=80?"✓":""}</div><br>`:""}
+    <button class="primary" onclick="openSection('${s.id}')">${r?"Review / Retake":"Start Quiz"}</button>`;
+    cards.appendChild(div);
+  });
+  const pct=Math.round(completed/sections.length*100);
+  document.getElementById("progressBar").style.width=pct+"%";
+  document.getElementById("progressLabel").textContent=`${completed} of ${sections.length} sections completed`;
+  const fm=document.getElementById("finalMessage");
+  if(completed===sections.length){
+    const avg=graded?Math.round(totalPct/graded):0;
+    fm.innerHTML=`🎉 <b>${student||"Student"}</b> completed all 8 sections. Current average of best scores: <b>${avg}%</b>.`;
+  } else {
+    fm.innerHTML=`${student?`<b>${student}</b>: `:""}Complete all eight sections with at least 80% on each section.`;
+  }
+}
+function renderSections(){
+ const qc=document.getElementById("quizContainer");
+ sections.forEach(s=>{
+  const sec=document.createElement("section"); sec.id="sec-"+s.id; sec.className="section";
+  let qhtml=s.questions.map((q,qi)=>`
+    <div class="question" id="${s.id}-q${qi}">
+      <h4>${qi+1}. ${q[0]}</h4>
+      ${q[1].map((c,ci)=>`<label class="choice"><input type="radio" name="${s.id}-q${qi}" value="${ci}"> ${c}</label>`).join("")}
+      <div class="explanation" id="${s.id}-e${qi}"></div>
+    </div>`).join("");
+  sec.innerHTML=`<button class="secondary back no-print" onclick="showHome()">← Quiz Home</button>
+  <div class="lessonbox"><span class="badge">${s.icon} QUICK REFRESHER</span><h2>${s.title}</h2><p>${s.desc}</p>
+  <div class="diagram">${s.visual}</div></div>
+  ${qhtml}
+  <div class="quiz-actions no-print"><button class="primary" onclick="gradeSection('${s.id}')">Grade This Section</button>
+  <button class="secondary" onclick="clearSection('${s.id}')">Clear Answers</button></div>
+  <div class="result" id="${s.id}-result"></div>`;
+  qc.appendChild(sec);
+ });
+}
+function clearSection(id){
+ const s=sections.find(x=>x.id===id);
+ s.questions.forEach((q,qi)=>{
+  document.querySelectorAll(`input[name="${id}-q${qi}"]`).forEach(i=>i.checked=false);
+  const e=document.getElementById(`${id}-e${qi}`);e.className="explanation";e.innerHTML="";
+ });
+ document.getElementById(`${id}-result`).className="result";
+}
+function gradeSection(id){
+ const s=sections.find(x=>x.id===id);
+ let correct=0, unanswered=0;
+ s.questions.forEach((q,qi)=>{
+  const picked=document.querySelector(`input[name="${id}-q${qi}"]:checked`);
+  const e=document.getElementById(`${id}-e${qi}`);
+  if(!picked){
+    unanswered++; e.className="explanation show bad"; e.innerHTML=`⚠️ No answer selected. <b>Correct answer:</b> ${q[1][q[2]]}. ${q[3]}`;
+  } else if(Number(picked.value)===q[2]){
+    correct++; e.className="explanation show good"; e.innerHTML=`✅ Correct. ${q[3]}`;
+  } else {
+    e.className="explanation show bad"; e.innerHTML=`❌ Not quite. <b>Correct answer:</b> ${q[1][q[2]]}. ${q[3]}`;
+  }
+ });
+ const score=Math.round(correct/s.questions.length*100);
+ const prev=state[id]?.score||0;
+ state[id]={score:Math.max(prev,score),last:score,date:new Date().toLocaleString()};
+ localStorage.setItem("tricasterQuizState",JSON.stringify(state));
+ const r=document.getElementById(`${id}-result`);
+ r.className="result show";
+ r.innerHTML=`<strong>${score}% — ${correct}/${s.questions.length} correct</strong><p>${score>=80?"✅ Section complete!":"🔁 Review the explanations and try again. You need 80% to complete the section."}</p>
+ <p class="small">Best score saved on this device: ${state[id].score}%${unanswered?` • ${unanswered} unanswered`:""}</p>`;
+ updateHome();
+ r.scrollIntoView({behavior:"smooth",block:"center"});
+}
+renderSections(); updateHome();
+</script>
+</body>
+</html>
